@@ -237,7 +237,14 @@ async function fetchCloudData() {
             allDinos = resData.settings.map(s => ({
                 id: s.id, month: s.mth || 6, extraTax: s.et, rent: s.rt, taxRate: s.tr, harvested: s.hv, name: s.nm, icon: s.ic || "Rex", logs: []
             }));
+        } else {
+            // 如果雲端沒有設定，但需要保留預設卡片，也確保它們的 logs 被清空
+            allDinos.forEach(dino => dino.logs = []);
         }
+
+        // 關鍵修正：確保每一隻動物在塞入雲端 logs 前，它的 logs 陣列是乾淨的
+        allDinos.forEach(dino => dino.logs = []);
+
         resData.logs.forEach(row => {
             const dino = allDinos.find(d => d.name.trim() === String(row.name).trim());
             if (dino) dino.logs.push({ date: row.date, qty: row.qty, amt: row.amt });
@@ -249,7 +256,6 @@ async function fetchCloudData() {
         render();
     }
 }
-
 function handleDateChange(newVal) {
     selectedDate = newVal;
     localStorage.setItem('lastZooDate', newVal);
