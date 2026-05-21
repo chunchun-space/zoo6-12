@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>下半年度動物園養殖系統</title>
+    <style>
+        /* 基礎樣式與月份專屬色（確保主色 --p 有預設值，避免白畫面） */
+        :root { --p: #0288d1; --bg: #f4fafd; --text: #37474f; --accent: #ff7043; --hp-bg: #e0e0e0; }
+        body.month-6 { --p: #0288d1; --bg: #f4fafd; } 
+        body.month-7 { --p: #00897b; --bg: #e0f2f1; } 
+        body.month-8 { --p: #7b1fa2; --bg: #f3e5f5; } 
+        body.month-9 { --p: #e65100; --bg: #fff3e0; } 
+        body.month-10 { --p: #d84315; --bg: #fbe9e7; } 
+        body.month-11 { --p: #4e342e; --bg: #efebe9; } 
+        body.month-12 { --p: #455a64; --bg: #eceff1; } 
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft JhengHei", sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 10px; max-width: 100vw; overflow-x: hidden; transition: background 0.3s; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        
+        .header-banner { width: 100%; padding: 15px; background: white; border-radius: 20px; margin-bottom: 10px; text-align: center; border: 3px solid var(--p); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        
+        .month-tabs { display: flex; justify-content: space-between; gap: 5px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 5px; }
+        .month-tab { flex: 1; min-width: 45px; text-align: center; padding: 10px 5px; background: white; border: 2px solid #ccc; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 0.9rem; color: #666; }
+        .month-tab.active { background: var(--p); color: white; border-color: var(--p); }
+
+        .add-field-box { background: white; padding: 12px; border-radius: 15px; margin-bottom: 15px; border: 2px dashed var(--p); display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; }
+        .add-field-box input, .add-field-box select { padding: 6px 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.9rem; }
+        .add-field-box button { width: auto; padding: 6px 15px; border-radius: 8px; font-size: 0.9rem; background: var(--p); color: white; border: none; font-weight: bold; cursor: pointer; }
+
+        .perf-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 15px; background: white; border-radius: 15px; overflow: hidden; border: 2px solid var(--p); }
+        .perf-table th { background: white; background-color: rgba(0,0,0,0.05); padding: 8px; border-bottom: 2px solid var(--p); }
+        .perf-table td { padding: 8px 4px; text-align: center; border-bottom: 1px solid #eee; }
+        
+        .summary-box { background: white; padding: 15px; border-radius: 20px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; border: 2px solid #eee; }
+        .summary-box div span { font-size: 0.8rem; color: #888; display: block; }
+        
+        .dino-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; }
+        .dino-card { position: relative; background: white; border-radius: 25px; padding: 15px; border: 3px solid var(--p); box-shadow: 0 6px 15px rgba(0,0,0,0.06); min-height: 400px; padding-top: 60px; margin-top: 30px; }
+        .card-avatar { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); font-size: 50px; width: 80px; height: 80px; background: white; border: 5px solid var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10; }
+        
+        .stamp { position: absolute; top: 10px; left: -10px; transform: rotate(-15deg); padding: 4px 12px; border: 2px solid #ccc; color: #ccc; font-weight: bold; font-size: 0.7rem; border-radius: 5px; cursor: pointer; background: white; z-index: 11; }
+        .stamp.active { border-color: #f44336; color: #f44336; }
+        
+        .editable-title { width: 100%; border: none; background: transparent; text-align: center; font-size: 1.4rem; font-weight: bold; color: var(--p); border-bottom: 1px dashed #ccc; margin-bottom: 10px; position: relative; z-index: 2; }
+        
+        .hp-container { width: 220px; height: 18px; background: var(--hp-bg); margin: 0 auto 10px; border-radius: 10px; border: 2px solid #777; overflow: hidden; position: relative; z-index: 2; }
+        .hp-bar { height: 100%; background: #4caf50; width: 0%; transition: width 0.4s ease; }
+        .hp-marker { position: absolute; width: 100%; text-align: center; font-size: 11px; font-weight: bold; color: #000; line-height: 14px; top: 0; left: 0; pointer-events: none; }
+        
+        .calc-area { background: rgba(0, 0, 0, 0.02); padding: 10px; border-radius: 12px; margin-bottom: 12px; font-size: 0.85rem; position: relative; z-index: 2; }
+        .calc-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .manual-input { width: 60px; border: none; border-bottom: 1px solid #ccc; background: transparent; text-align: right; padding: 2px; font-size: 0.85rem; }
+        
+        .input-row { display: grid; grid-template-columns: 1.2fr 0.6fr 1.8fr; gap: 5px; margin-bottom: 10px; position: relative; z-index: 2; }
+        .input-row input { padding: 8px 4px; border-radius: 8px; border: 1px solid #ddd; font-size: 0.9rem; width: 100%; }
+        .feed-btn { width: 100%; padding: 12px; border-radius: 15px; border: none; background: var(--p); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; position: relative; z-index: 2; }
+        
+        .log-list { margin-top: 10px; height: 130px; overflow-y: auto; font-size: 0.8rem; border-top: 1px solid #eee; position: relative; z-index: 2; }
+        .log-list table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .log-list td { padding: 8px 2px; border-bottom: 1px solid #f2f2f2; text-align: center; }
+        .del-btn { color: #f44336; cursor: pointer; font-weight: bold; font-size: 0.75rem; text-decoration: underline; }
+    </style>
+</head>
+<body class="month-6">
+
+<div class="header-banner">
+    <h1 id="main-title">六月動物園養殖</h1>
+    <p id="status-msg" style="font-size:0.8rem; color:#666;">⌛ 正在載入系統...</p>
+</div>
+
+<div class="month-tabs">
+    <div class="month-tab active" onclick="switchMonth(6)">6月</div>
+    <div class="month-tab" onclick="switchMonth(7)">7月</div>
+    <div class="month-tab" onclick="switchMonth(8)">8月</div>
+    <div class="month-tab" onclick="switchMonth(9)">9月</div>
+    <div class="month-tab" onclick="switchMonth(10)">10月</div>
+    <div class="month-tab" onclick="switchMonth(11)">11月</div>
+    <div class="month-tab" onclick="switchMonth(12)">12月</div>
+</div>
+
+<div class="add-field-box">
+    <span>➕ 靈活加場：</span>
+    <input type="text" id="newDinoName" placeholder="輸入新地點/場次名稱">
+    <select id="newDinoIcon">
+        <option value="Flamingo">🦩 紅鶴</option>
+        <option value="Rex">🦖 暴龍</option>
+        <option value="Whale">🐳 藍鯨</option>
+        <option value="Owl">🦉 貓頭鷹</option>
+        <option value="Fish">🐠 熱帶魚</option>
+        <option value="Dino">🦕 腕龍</option>
+        <option value="Cow">🐄 乳牛</option>
+        <option value="Lobster">🦞 龍蝦</option>
+        <option value="Rooster">🐓 公雞</option>
+    </select>
+    <button onclick="addNewCard()">立刻加場</button>
+</div>
+
+<table class="perf-table">
+    <thead><tr><th>收成/動物</th><th>總食量</th><th>飽食度</th><th>達成</th></tr></thead>
+    <tbody id="performanceBody"></tbody>
+</table>
+
+<div class="summary-box">
+    <div><span>🥩 總食量</span><b id="gRev" style="color: var(--accent);">$0</b></div>
+    <div><span>💸 總支出</span><b id="gExp" style="color: #78909c;">$0</b></div>
+    <div><span>💖 總飽食度</span><b id="gProfit" style="color: var(--p);">$0</b></div>
+</div>
+
+<div id="dinoContainer" class="dino-grid"></div>
+
+<script>
+// 請在下方引號內自行填入您的 GAS 網址（目前維持空白不影響畫面跑出）
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzXtfxf3wd7TSzwPR0KAxJwGp7mVKzV8PGojpnhpWexo4ldchhsSixue-jEXgIz6cF0/exec"; 
+
+let currentMonth = 6;
+let selectedDate = localStorage.getItem('lastZooDate') || new Date().toISOString().split('T')[0];
+
+let allDinos = [
+    { id: 0, month: 6, icon: "Rex", name: "新竹巨城", taxRate: 33, rent: 9000, extraTax: 0, harvested: false, logs: [] },
+    { id: 1, month: 6, icon: "Whale", name: "桃園新光", taxRate: 33, rent: 0, extraTax: 0, harvested: false, logs: [] },
+    { id: 2, month: 6, icon: "Owl", name: "板橋環球", taxRate: 33, rent: 0, extraTax: 0, harvested: false, logs: [] },
+    { id: 3, month: 6, icon: "Fish", name: "內湖三總", taxRate: 33, rent: 0, extraTax: 0, harvested: false, logs: [] },
+    { id: 4, month: 6, icon: "Dino", name: "日月光B1", taxRate: 33, rent: 0, extraTax: 0, harvested: false, logs: [] },
+    { id: 5, month: 6, icon: "Cow", name: "北榮", taxRate: 33, rent: 0, extraTax: 0, harvested: false, logs: [] },
+    { id: 6, month: 6, icon: "Lobster", name: "林口A9", taxRate: 33, rent: 0, extraTax: 0, harvested: false, logs: [] },
+    { id: 7, month: 6, icon: "Rooster", name: "松山機場", taxRate: 33, rent: 0, extraTax: 0, harvested: false, logs: [] },
+    { id: 8, month: 6, icon: "Flamingo", name: "追加加場點", taxRate: 33, rent: 0, extraTax: 0, harvested: false, logs: [] }
+];
+
+function getDinoEmoji(iconName) {
+    const emojis = { "Rex": "🦖", "Whale": "🐳", "Owl": "🦉", "Fish": "🐠", "Dino": "🦕", "Cow": "🐄", "Lobster": "🦞", "Rooster": "🐓", "Flamingo": "🦩" };
+    return emojis[iconName] || "❓";
+}
+
+function getHarvestDate(month) {
+    let targetMonth = month + 2;
+    if (targetMonth > 12) targetMonth -= 12; 
+    return `${targetMonth}/15`;
+}
+
+function switchMonth(m) {
+    currentMonth = m;
+    document.body.className = `month-${m}`;
+    const chineseMonths = {6:"六", 7:"七", 8:"八", 9:"九", 10:"十", 11:"十一", 12:"十二"};
+    document.getElementById('main-title').innerText = `${chineseMonths[m]}月動物園養殖`;
+    
+    // 修正選取標籤高亮效果
+    const tabs = document.querySelectorAll('.month-tab');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    if (tabs[m - 6]) tabs[m - 6].classList.add('active');
+    
+    render();
+}
+
+function addNewCard() {
+    const nameInput = document.getElementById('newDinoName');
+    const iconSelect = document.getElementById('newDinoIcon');
+    if (!nameInput.value.trim()) return alert("請輸入加場地點名稱！");
+    
+    const newId = allDinos.length ? Math.max(...allDinos.map(c => c.id)) + 1 : 0;
+    allDinos.push({
+        id: newId,
+        month: currentMonth,
+        icon: iconSelect.value,
+        name: nameInput.value.trim(),
+        taxRate: 33, rent: 0, extraTax: 0, harvested: false,
+        logs: []
+    });
+    
+    nameInput.value = '';
+    render();
+    cloudSaveSettings();
+}
+
+async function cloudSaveSettings() {
+    if(!GAS_URL) return;
+    const settings = allDinos.map(c => ({
+        id: c.id, mth: c.month, et: c.extraTax, rt: c.rent, tr: c.taxRate, hv: c.harvested, nm: c.name, ic: c.icon
+    }));
+    try {
+        await fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "saveSettings", settings: settings }) });
+        document.getElementById('status-msg').innerText = "✅ 設定已同步至雲端";
+    } catch (e) { document.getElementById('status-msg').innerText = "❌ 同步失敗"; }
+}
+
+async function fetchCloudData() {
+    if(!GAS_URL) {
+        document.getElementById('status-msg').innerText = "⚠️ 未填寫 URL，目前為獨立運行模式";
+        render();
+        return;
+    }
+    try {
+        const response = await fetch(GAS_URL + "?action=read");
+        const resData = await response.json();
+        
+        if (resData.settings && resData.settings.length > 0) {
+            allDinos = resData.settings.map(s => ({
+                id: s.id, month: s.mth || 6, extraTax: s.et, rent: s.rt, taxRate: s.tr, harvested: s.hv, name: s.nm, icon: s.ic || "Rex", logs: []
+            }));
+        }
+        resData.logs.forEach(row => {
+            const dino = allDinos.find(d => d.name.trim() === String(row.name).trim());
+            if (dino) dino.logs.push({ date: row.date, qty: row.qty, amt: row.amt });
+        });
+        document.getElementById('status-msg').innerText = "✅ 數據更新成功";
+        render();
+    } catch (e) {
+        document.getElementById('status-msg').innerText = "⚠️ 讀取失敗，進入離線模式";
+        render();
+    }
+}
+
+function handleDateChange(newVal) {
+    selectedDate = newVal;
+    localStorage.setItem('lastZooDate', newVal);
+    render(); 
+}
+
+function render() {
+    const container = document.getElementById('dinoContainer');
+    const perfBody = document.getElementById('performanceBody');
+    if(!container || !perfBody) return;
+    
+    container.innerHTML = ''; perfBody.innerHTML = '';
+    let gRev = 0, gExp = 0, perfData = [];
+
+    const currentMonthDinos = allDinos.filter(d => d.month === currentMonth);
+
+    currentMonthDinos.forEach(c => {
+        const rev = c.logs.reduce((s, l) => s + (Number(l.amt) || 0), 0);
+        const qty = c.logs.reduce((s, l) => s + (Number(l.qty) || 0), 0);
+        const cost = qty * 55.2;
+        const tax = rev * (c.taxRate / 100);
+        const profit = rev - tax - cost - (c.rent || 0) - (c.extraTax || 0);
+        gRev += rev; gExp += (tax + cost + (c.rent || 0) + (c.extraTax || 0));
+        
+        // 滿血目標精準定為 60,000 元
+        const maxHpTarget = 60000;
+        const hpPercent = Math.min(Math.max((profit / maxHpTarget) * 100, 0), 100);
+        
+        let markerText = `${hpPercent.toFixed(0)}%`;
+        if (hpPercent >= 100) markerText = `👑 MAX (${hpPercent.toFixed(0)}%)`;
+
+        perfData.push({ icon: getDinoEmoji(c.icon), name: c.name, rev, profit, hpPercent, harvested: c.harvested });
+
+        const card = document.createElement('div');
+        card.className = 'dino-card';
+        card.innerHTML = `
+            <div class="card-avatar">${getDinoEmoji(c.icon)}</div>
+            <div class="stamp ${c.harvested ? 'active' : ''}" onclick="toggleHarvest(${c.id})">${getHarvestDate(currentMonth)} 收成</div>
+            <input class="editable-title" type="text" value="${c.name}" onchange="update(${c.id}, 'name', this.value)">
+            
+            <div class="hp-container">
+                <div class="hp-bar" style="width: ${hpPercent}%;"></div>
+                <div class="hp-marker">${markerText}</div>
+            </div>
+            
+            <div class="calc-area">
+                <div class="calc-row"><span>🥩 累積食量:</span><b>$${rev.toLocaleString()}</b></div>
+                <div class="calc-row"><span>📦 成本:</span><b>$${cost.toFixed(0)}</b></div>
+                <div class="calc-row"><span>👑 國王稅 (<input type="number" class="manual-input" style="width:35px" value="${c.taxRate}" onchange="update(${c.id}, 'taxRate', this.value)">%):</span><span>$${tax.toFixed(0)}</span></div>
+                <div class="calc-row" style="color: #d32f2f;"><span>💸 補繳稅:</span><input type="number" class="manual-input" value="${c.extraTax}" onchange="update(${c.id}, 'extraTax', this.value)"></div>
+                <div class="calc-row" style="color: #5d4037;"><span>🏠 小窩錢:</span><input type="number" class="manual-input" value="${c.rent}" onchange="update(${c.id}, 'rent', this.value)"></div>
+                <div class="calc-row" style="color:var(--p); font-weight:bold; border-top:1px dashed #ccc; padding-top:8px; margin-top:5px;"><span>💖 飽食度:</span><span>$${profit.toLocaleString(undefined, {maximumFractionDigits:0})}</span></div>
+            </div>
+            <div class="input-row">
+               <input type="date" id="date-${c.id}" value="${selectedDate}" onchange="handleDateChange(this.value)">
+                <input type="number" id="qty-${c.id}" placeholder="只">
+                <input type="number" id="amt-${c.id}" placeholder="金額" onkeypress="if(event.key==='Enter')addAndSync(${c.id})">
+            </div>
+            <button class="feed-btn" onclick="addAndSync(${c.id})">🍖 餵食同步</button>
+            <div class="log-list"><table>${c.logs.map((l, idx) => `<tr><td width="25%">${l.date}</td><td width="25%">${l.qty}只</td><td width="30%">$${Number(l.amt).toLocaleString()}</td><td width="20%"><span class="del-btn" onclick="deleteLog(${c.id}, ${idx})">刪除</span></td></tr>`).reverse().join('')}</table></div>
+        `;
+        container.appendChild(card);
+    });
+
+    perfData.sort((a,b) => b.profit - a.profit).forEach(p => {
+        perfBody.innerHTML += `<tr><td>${p.harvested ? '<span style="color:#f44336; font-weight:bold;">[收]</span> ' : ''}${p.icon} ${p.name}</td><td>$${p.rev.toLocaleString()}</td><td style="color:var(--p); font-weight:bold;">$${p.profit.toLocaleString(undefined, {maximumFractionDigits:0})}</td><td>${p.hpPercent.toFixed(0)}%</td></tr>`;
+    });
+
+    document.getElementById('gRev').innerText = '$' + gRev.toLocaleString();
+    document.getElementById('gExp').innerText = '$' + gExp.toLocaleString(undefined, {maximumFractionDigits:0});
+    document.getElementById('gProfit').innerText = '$' + (gRev - gExp).toLocaleString(undefined, {maximumFractionDigits:0});
+}
+
+window.update = (id, f, v) => { 
+    const idx = allDinos.findIndex(d => d.id === id);
+    if(idx !== -1) {
+        allDinos[idx][f] = (f==='name'?v:parseFloat(v)||0); 
+        render(); 
+        cloudSaveSettings(); 
+    }
+};
+
+window.toggleHarvest = (id) => { 
+    const idx = allDinos.findIndex(d => d.id === id);
+    if(idx !== -1) {
+        allDinos[idx].harvested = !allDinos[idx].harvested; 
+        render(); 
+        cloudSaveSettings(); 
+    }
+};
+
+async function deleteLog(dinoId, logIndex) {
+    const idx = allDinos.findIndex(d => d.id === dinoId);
+    if(idx === -1) return;
+    const log = allDinos[idx].logs[logIndex];
+    const name = allDinos[idx].name;
+    allDinos[idx].logs.splice(logIndex, 1);
+    render();
+    if(!GAS_URL) return;
+    try { await fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "delete", name: name, amt: log.amt }) }); } catch (e) {}
+}
+
+async function addAndSync(id) {
+    const idx = allDinos.findIndex(d => d.id === id);
+    if(idx === -1) return;
+    const q = document.getElementById(`qty-${id}`), a = document.getElementById(`amt-${id}`), d = document.getElementById(`date-${id}`);
+    if (a.value === "") return alert("請輸入金額");
+    const log = { date: d.value.slice(5), amt: Number(a.value), qty: Number(q.value) };
+    allDinos[idx].logs.push(log);
+    render(); 
+    if(!GAS_URL) {
+        q.value = ''; a.value = '';
+        return;
+    }
+    const sData = { action: "add", ...log, name: allDinos[idx].name, fullDate: d.value };
+    q.value = ''; a.value = '';
+    try { await fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(sData) }); fetchCloudData(); } catch (e) {}
+}
+
+// 初始化執行
+fetchCloudData();
+</script>
+</body>
+</html>
