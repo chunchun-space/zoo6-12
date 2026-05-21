@@ -339,7 +339,7 @@ function render() {
 window.update = (id, f, v) => { 
     const idx = allDinos.findIndex(d => d.id === id);
     if(idx !== -1) {
-        allDinos[idx][f] = (f==='name'?v:parseFloat(v)||0); 
+        allDinos[idx][f] = (f==='name' ? v : (v === '' ? 0 : parseFloat(v)));
         render(); 
         cloudSaveSettings(); 
     }
