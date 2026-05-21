@@ -3,24 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>下半年度動物園養殖系統</title>
+    <title>森林少女的動物園養殖系統</title>
     <style>
-        /* 基礎樣式與月份專屬色（確保主色 --p 有預設值，避免白畫面） */
-        :root { --p: #0288d1; --bg: #f4fafd; --text: #37474f; --accent: #ff7043; --hp-bg: #e0e0e0; }
-        body.month-6 { --p: #0288d1; --bg: #f4fafd; } 
-        body.month-7 { --p: #00897b; --bg: #e0f2f1; } 
-        body.month-8 { --p: #7b1fa2; --bg: #f3e5f5; } 
-        body.month-9 { --p: #e65100; --bg: #fff3e0; } 
-        body.month-10 { --p: #d84315; --bg: #fbe9e7; } 
-        body.month-11 { --p: #4e342e; --bg: #efebe9; } 
-        body.month-12 { --p: #455a64; --bg: #eceff1; } 
+        /* 基礎樣式與月份專屬漸層色 */
+        :root { 
+            --p: #0288d1; 
+            --bg: #f4fafd; 
+            --text: #37474f; 
+            --accent: #ff7043; 
+            --hp-bg: #e0e0e0; 
+            --banner-grad: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+        }
+        /* 各月份森林系漸層與背景設定 */
+        body.month-6 { --p: #0288d1; --bg: #f4fafd; --banner-grad: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%); } 
+        body.month-7 { --p: #00897b; --bg: #e0f2f1; --banner-grad: linear-gradient(135deg, #e0f2f1 0%, #80cbc4 100%); } 
+        body.month-8 { --p: #7b1fa2; --bg: #f3e5f5; --banner-grad: linear-gradient(135deg, #f3e5f5 0%, #ce93d8 100%); } 
+        body.month-9 { --p: #e65100; --bg: #fff3e0; --banner-grad: linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%); } 
+        body.month-10 { --p: #d84315; --bg: #fbe9e7; --banner-grad: linear-gradient(135deg, #fbe9e7 0%, #ffab91 100%); } 
+        body.month-11 { --p: #4e342e; --bg: #efebe9; --banner-grad: linear-gradient(135deg, #efebe9 0%, #bcaaa4 100%); } 
+        body.month-12 { --p: #455a64; --bg: #eceff1; --banner-grad: linear-gradient(135deg, #eceff1 0%, #b0bec5 100%); } 
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft JhengHei", sans-serif; }
         body { background: var(--bg); color: var(--text); padding: 10px; max-width: 100vw; overflow-x: hidden; transition: background 0.3s; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         
-        .header-banner { width: 100%; padding: 15px; background: white; border-radius: 20px; margin-bottom: 10px; text-align: center; border: 3px solid var(--p); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        /* 漸層 Banner 設計 */
+        .header-banner { width: 100%; padding: 20px 15px; background: var(--banner-grad); border-radius: 20px; margin-bottom: 10px; text-align: center; border: 2px solid var(--p); box-shadow: 0 4px 15px rgba(0,0,0,0.08); transition: background 0.3s; }
+        .header-banner h1 { font-size: 1.6rem; color: #2c3e50; text-shadow: 1px 1px 2px rgba(255,255,255,0.6); margin-bottom: 4px; }
         
         .month-tabs { display: flex; justify-content: space-between; gap: 5px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 5px; }
         .month-tab { flex: 1; min-width: 45px; text-align: center; padding: 10px 5px; background: white; border: 2px solid #ccc; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 0.9rem; color: #666; }
@@ -30,9 +40,10 @@
         .add-field-box input, .add-field-box select { padding: 6px 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.9rem; }
         .add-field-box button { width: auto; padding: 6px 15px; border-radius: 8px; font-size: 0.9rem; background: var(--p); color: white; border: none; font-weight: bold; cursor: pointer; }
 
-        .perf-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 15px; background: white; border-radius: 15px; overflow: hidden; border: 2px solid var(--p); }
-        .perf-table th { background: white; background-color: rgba(0,0,0,0.05); padding: 8px; border-bottom: 2px solid var(--p); }
-        .perf-table td { padding: 8px 4px; text-align: center; border-bottom: 1px solid #eee; }
+        .perf-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 15px; background: white; border-radius: 15px; overflow: hidden; border: 2px solid var(--p); }
+        .perf-table th { background: white; background-color: rgba(0,0,0,0.05); padding: 10px 8px; border-bottom: 2px solid var(--p); }
+        .perf-table td { padding: 10px 6px; text-align: center; border-bottom: 1px solid #eee; }
+        .medal { font-size: 1.1rem; margin-right: 2px; vertical-align: middle; }
         
         .summary-box { background: white; padding: 15px; border-radius: 20px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; border: 2px solid #eee; }
         .summary-box div span { font-size: 0.8rem; color: #888; display: block; }
@@ -41,6 +52,10 @@
         .dino-card { position: relative; background: white; border-radius: 25px; padding: 15px; border: 3px solid var(--p); box-shadow: 0 6px 15px rgba(0,0,0,0.06); min-height: 400px; padding-top: 60px; margin-top: 30px; }
         .card-avatar { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); font-size: 50px; width: 80px; height: 80px; background: white; border: 5px solid var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10; }
         
+        /* 卡片右上角刪除按鈕 */
+        .card-del-btn { position: absolute; top: 10px; right: 12px; background: none; border: none; color: #e53935; font-size: 1.2rem; cursor: pointer; z-index: 12; padding: 4px; transition: transform 0.1s; }
+        .card-del-btn:active { transform: scale(0.85); }
+
         .stamp { position: absolute; top: 10px; left: -10px; transform: rotate(-15deg); padding: 4px 12px; border: 2px solid #ccc; color: #ccc; font-weight: bold; font-size: 0.7rem; border-radius: 5px; cursor: pointer; background: white; z-index: 11; }
         .stamp.active { border-color: #f44336; color: #f44336; }
         
@@ -67,8 +82,8 @@
 <body class="month-6">
 
 <div class="header-banner">
-    <h1 id="main-title">六月動物園養殖</h1>
-    <p id="status-msg" style="font-size:0.8rem; color:#666;">⌛ 正在載入系統...</p>
+    <h1 id="main-title">六月森林少女的動物園</h1>
+    <p id="status-msg" style="font-size:0.8rem; color:#555;">⌛ 正在載入系統...</p>
 </div>
 
 <div class="month-tabs">
@@ -112,7 +127,7 @@
 <div id="dinoContainer" class="dino-grid"></div>
 
 <script>
-// 請在下方引號內自行填入您的 GAS 網址（目前維持空白不影響畫面跑出）
+// 請在下方引號內填入您的 GAS 網址
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzXtfxf3wd7TSzwPR0KAxJwGp7mVKzV8PGojpnhpWexo4ldchhsSixue-jEXgIz6cF0/exec"; 
 
 let currentMonth = 6;
@@ -145,9 +160,8 @@ function switchMonth(m) {
     currentMonth = m;
     document.body.className = `month-${m}`;
     const chineseMonths = {6:"六", 7:"七", 8:"八", 9:"九", 10:"十", 11:"十一", 12:"十二"};
-    document.getElementById('main-title').innerText = `${chineseMonths[m]}月動物園養殖`;
+    document.getElementById('main-title').innerText = `${chineseMonths[m]}月森林少女的動物園`;
     
-    // 修正選取標籤高亮效果
     const tabs = document.querySelectorAll('.month-tab');
     tabs.forEach(tab => tab.classList.remove('active'));
     if (tabs[m - 6]) tabs[m - 6].classList.add('active');
@@ -175,13 +189,36 @@ function addNewCard() {
     cloudSaveSettings();
 }
 
+async function deleteCard(id) {
+    const idx = allDinos.findIndex(d => d.id === id);
+    if (idx === -1) return;
+    
+    if (!confirm(`確定要完全刪除「${allDinos[idx].name}」這家店的所有資料嗎？(此操作不可逆)`)) return;
+    
+    const targetName = allDinos[idx].name;
+    allDinos.splice(idx, 1);
+    render();
+    
+    if (!GAS_URL) return;
+    try {
+        document.getElementById('status-msg').innerText = "⌛ 正在從雲端刪除卡片...";
+        await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "deleteCard", name: targetName, month: currentMonth })
+        });
+        cloudSaveSettings();
+    } catch(e) {
+        document.getElementById('status-msg').innerText = "❌ 雲端卡片刪除失敗";
+    }
+}
+
 async function cloudSaveSettings() {
     if(!GAS_URL) return;
     const settings = allDinos.map(c => ({
         id: c.id, mth: c.month, et: c.extraTax, rt: c.rent, tr: c.taxRate, hv: c.harvested, nm: c.name, ic: c.icon
     }));
     try {
-        await fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "saveSettings", settings: settings }) });
+        await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "saveSettings", settings: settings }) });
         document.getElementById('status-msg').innerText = "✅ 設定已同步至雲端";
     } catch (e) { document.getElementById('status-msg').innerText = "❌ 同步失敗"; }
 }
@@ -237,18 +274,19 @@ function render() {
         const profit = rev - tax - cost - (c.rent || 0) - (c.extraTax || 0);
         gRev += rev; gExp += (tax + cost + (c.rent || 0) + (c.extraTax || 0));
         
-        // 滿血目標精準定為 60,000 元
-        const maxHpTarget = 60000;
+        // 【優化血條公式】滿血 50,000，負數或零為 0%，防破版機制
+        const maxHpTarget = 50000;
         const hpPercent = Math.min(Math.max((profit / maxHpTarget) * 100, 0), 100);
         
         let markerText = `${hpPercent.toFixed(0)}%`;
         if (hpPercent >= 100) markerText = `👑 MAX (${hpPercent.toFixed(0)}%)`;
 
-        perfData.push({ icon: getDinoEmoji(c.icon), name: c.name, rev, profit, hpPercent, harvested: c.harvested });
+        perfData.push({ id: c.id, icon: getDinoEmoji(c.icon), name: c.name, rev, profit, hpPercent, harvested: c.harvested });
 
         const card = document.createElement('div');
         card.className = 'dino-card';
         card.innerHTML = `
+            <button class="card-del-btn" onclick="deleteCard(${c.id})" title="刪除此卡片">❌</button>
             <div class="card-avatar">${getDinoEmoji(c.icon)}</div>
             <div class="stamp ${c.harvested ? 'active' : ''}" onclick="toggleHarvest(${c.id})">${getHarvestDate(currentMonth)} 收成</div>
             <input class="editable-title" type="text" value="${c.name}" onchange="update(${c.id}, 'name', this.value)">
@@ -277,8 +315,14 @@ function render() {
         container.appendChild(card);
     });
 
-    perfData.sort((a,b) => b.profit - a.profit).forEach(p => {
-        perfBody.innerHTML += `<tr><td>${p.harvested ? '<span style="color:#f44336; font-weight:bold;">[收]</span> ' : ''}${p.icon} ${p.name}</td><td>$${p.rev.toLocaleString()}</td><td style="color:var(--p); font-weight:bold;">$${p.profit.toLocaleString(undefined, {maximumFractionDigits:0})}</td><td>${p.hpPercent.toFixed(0)}%</td></tr>`;
+    // 排序並在表格加入第一、二、三名獎牌 🥇 🥈 🥉
+    perfData.sort((a,b) => b.profit - a.profit).forEach((p, index) => {
+        let medal = "";
+        if (index === 0 && p.profit > 0) medal = '<span class="medal">🥇</span>';
+        else if (index === 1 && p.profit > 0) medal = '<span class="medal">🥈</span>';
+        else if (index === 2 && p.profit > 0) medal = '<span class="medal">🥉</span>';
+
+        perfBody.innerHTML += `<tr><td>${p.harvested ? '<span style="color:#f44336; font-weight:bold;">[收]</span> ' : ''}${medal}${p.icon} ${p.name}</td><td>$${p.rev.toLocaleString()}</td><td style="color:var(--p); font-weight:bold;">$${p.profit.toLocaleString(undefined, {maximumFractionDigits:0})}</td><td>${p.hpPercent.toFixed(0)}%</td></tr>`;
     });
 
     document.getElementById('gRev').innerText = '$' + gRev.toLocaleString();
@@ -312,7 +356,7 @@ async function deleteLog(dinoId, logIndex) {
     allDinos[idx].logs.splice(logIndex, 1);
     render();
     if(!GAS_URL) return;
-    try { await fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "delete", name: name, amt: log.amt }) }); } catch (e) {}
+    try { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "delete", name: name, amt: log.amt }) }); } catch (e) {}
 }
 
 async function addAndSync(id) {
@@ -329,10 +373,9 @@ async function addAndSync(id) {
     }
     const sData = { action: "add", ...log, name: allDinos[idx].name, fullDate: d.value };
     q.value = ''; a.value = '';
-    try { await fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(sData) }); fetchCloudData(); } catch (e) {}
+    try { await fetch(GAS_URL, { method: "POST", body: JSON.stringify(sData) }); fetchCloudData(); } catch (e) {}
 }
 
-// 初始化執行
 fetchCloudData();
 </script>
 </body>
