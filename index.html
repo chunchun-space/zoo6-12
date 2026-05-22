@@ -127,12 +127,12 @@
 <div id="dinoContainer" class="dino-grid"></div>
 
 <script>
-// 請在下方引號內填入您的 GAS 網址
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzXtfxf3wd7TSzwPR0KAxJwGp7mVKzV8PGojpnhpWexo4ldchhsSixue-jEXgIz6cF0/exec"; 
 
 let currentMonth = 6;
 let selectedDate = localStorage.getItem('lastZooDate') || new Date().toISOString().split('T')[0];
 
+// 本地端預設初始卡片
 let allDinos = [
     { id: 0, month: 6, icon: "Rex", name: "新竹巨城", taxRate: 33, rent: 9000, extraTax: 0, harvested: false, logs: [] },
     { id: 1, month: 6, icon: "Whale", name: "桃園新光", taxRate: 33, rent: 0, extraTax: 0, harvested: false, logs: [] },
@@ -172,14 +172,19 @@ function switchMonth(m) {
 function addNewCard() {
     const nameInput = document.getElementById('newDinoName');
     const iconSelect = document.getElementById('newDinoIcon');
-    if (!nameInput.value.trim()) return alert("請輸入加場地點名稱！");
+    const cleanName = nameInput.value.trim();
+    if (!cleanName) return alert("請輸入加場地點名稱！");
     
+    // 避免同月份內有名稱完全相同的卡片重複出現
+    const exists = allDinos.some(d => d.month === currentMonth && d.name === cleanName);
+    if(exists) return alert("這個月份已經有相同名稱的地點囉！");
+
     const newId = allDinos.length ? Math.max(...allDinos.map(c => c.id)) + 1 : 0;
     allDinos.push({
         id: newId,
         month: currentMonth,
         icon: iconSelect.value,
-        name: nameInput.value.trim(),
+        name: cleanName,
         taxRate: 33, rent: 0, extraTax: 0, harvested: false,
         logs: []
     });
@@ -234,21 +239,41 @@ async function fetchCloudData() {
         const resData = await response.json();
         
         if (resData.settings && resData.settings.length > 0) {
-            allDinos = resData.settings.map(s => ({
-                id: s.id, month: s.mth || 6, extraTax: s.et, rent: s.rt, taxRate: s.tr, harvested: s.hv, name: s.nm, icon: s.ic || "Rex", logs: []
-            }));
+            // 利用 Map 機制，防止雲端讀取時，因為重複的 ID 或者是多月份重疊造成小卡多次自我複製
+            const uniqueMap = new Map();
+            resData.settings.forEach(s => {
+                // 用「月份+名稱」當作全域唯一金鑰，避免任何增生 bug
+                const key = `${s.mth || 6}_${String(s.nm).trim()}`;
+                if (!uniqueMap.has(key)) {
+                    uniqueMap.set(key, {
+                        id: Number(s.id), 
+                        month: Number(s.mth) || 6, 
+                        extraTax: Number(s.et) || 0, 
+                        rent: Number(s.rt) || 0, 
+                        taxRate: Number(s.tr) || 33, 
+                        harvested: s.hv, 
+                        name: String(s.nm).trim(), 
+                        icon: s.ic || "Rex", 
+                        logs: []
+                    });
+                }
+            });
+            allDinos = Array.from(uniqueMap.values());
         } else {
-            // 如果雲端沒有設定，但需要保留預設卡片，也確保它們的 logs 被清空
             allDinos.forEach(dino => dino.logs = []);
         }
 
-        // 關鍵修正：確保每一隻動物在塞入雲端 logs 前，它的 logs 陣列是乾淨的
         allDinos.forEach(dino => dino.logs = []);
 
-        resData.logs.forEach(row => {
-            const dino = allDinos.find(d => d.name.trim() === String(row.name).trim());
-            if (dino) dino.logs.push({ date: row.date, qty: row.qty, amt: row.amt });
-        });
+        // 綁定流水帳 logs 紀錄
+        if(resData.logs && resData.logs.length > 0) {
+            resData.logs.forEach(row => {
+                // 修正對比：日誌必須核對名稱，並塞入對應月份的卡片中
+                const dino = allDinos.find(d => d.name.trim() === String(row.name).trim());
+                if (dino) dino.logs.push({ date: row.date, qty: row.qty, amt: row.amt });
+            });
+        }
+        
         document.getElementById('status-msg').innerText = "✅ 數據更新成功";
         render();
     } catch (e) {
@@ -256,6 +281,7 @@ async function fetchCloudData() {
         render();
     }
 }
+
 function handleDateChange(newVal) {
     selectedDate = newVal;
     localStorage.setItem('lastZooDate', newVal);
@@ -280,8 +306,8 @@ function render() {
         const profit = rev - tax - cost - (c.rent || 0) - (c.extraTax || 0);
         gRev += rev; gExp += (tax + cost + (c.rent || 0) + (c.extraTax || 0));
         
-        // 【優化血條公式】滿血 50,000，負數或零為 0%，防破版機制
-        const maxHpTarget = 50000;
+        // 【變更需求 1】滿血目標改為 40,000 元
+        const maxHpTarget = 40000;
         const hpPercent = Math.min(Math.max((profit / maxHpTarget) * 100, 0), 100);
         
         let markerText = `${hpPercent.toFixed(0)}%`;
@@ -321,7 +347,6 @@ function render() {
         container.appendChild(card);
     });
 
-    // 排序並在表格加入第一、二、三名獎牌 🥇 🥈 🥉
     perfData.sort((a,b) => b.profit - a.profit).forEach((p, index) => {
         let medal = "";
         if (index === 0 && p.profit > 0) medal = '<span class="medal">🥇</span>';
