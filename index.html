@@ -12,7 +12,7 @@
             --text: #37474f; 
             --accent: #ff7043; 
             --hp-bg: #e0e0e0; 
-            --banner-grad: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            --banner-grad: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
         }
         /* 各月份森林系漸層與背景設定 */
         body.month-6 { --p: #0288d1; --bg: #f4fafd; --banner-grad: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%); } 
@@ -22,6 +22,7 @@
         body.month-10 { --p: #d84315; --bg: #fbe9e7; --banner-grad: linear-gradient(135deg, #fbe9e7 0%, #ffab91 100%); } 
         body.month-11 { --p: #4e342e; --bg: #efebe9; --banner-grad: linear-gradient(135deg, #efebe9 0%, #bcaaa4 100%); } 
         body.month-12 { --p: #455a64; --bg: #eceff1; --banner-grad: linear-gradient(135deg, #eceff1 0%, #b0bec5 100%); } 
+        body.month-summary { --p: #607d8b; --bg: #f5f5f5; --banner-grad: linear-gradient(135deg, #cfd8dc 0%, #b0bec5 100%); }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft JhengHei", sans-serif; }
         body { background: var(--bg); color: var(--text); padding: 10px; max-width: 100vw; overflow-x: hidden; transition: background 0.3s; }
@@ -33,7 +34,7 @@
         .header-banner h1 { font-size: 1.6rem; color: #2c3e50; text-shadow: 1px 1px 2px rgba(255,255,255,0.6); margin-bottom: 4px; }
         
         .month-tabs { display: flex; justify-content: space-between; gap: 5px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 5px; }
-        .month-tab { flex: 1; min-width: 45px; text-align: center; padding: 10px 5px; background: white; border: 2px solid #ccc; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 0.9rem; color: #666; }
+        .month-tab { flex: 1; min-width: 45px; text-align: center; padding: 10px 5px; background: white; border: 2px solid #ccc; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 0.9rem; color: #666; white-space: nowrap; }
         .month-tab.active { background: var(--p); color: white; border-color: var(--p); }
 
         .add-field-box { background: white; padding: 12px; border-radius: 15px; margin-bottom: 15px; border: 2px dashed var(--p); display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; }
@@ -52,7 +53,6 @@
         .dino-card { position: relative; background: white; border-radius: 25px; padding: 15px; border: 3px solid var(--p); box-shadow: 0 6px 15px rgba(0,0,0,0.06); min-height: 400px; padding-top: 60px; margin-top: 30px; }
         .card-avatar { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); font-size: 50px; width: 80px; height: 80px; background: white; border: 5px solid var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10; }
         
-        /* 卡片右上角刪除按鈕 */
         .card-del-btn { position: absolute; top: 10px; right: 12px; background: none; border: none; color: #e53935; font-size: 1.2rem; cursor: pointer; z-index: 12; padding: 4px; transition: transform 0.1s; }
         .card-del-btn:active { transform: scale(0.85); }
 
@@ -77,6 +77,10 @@
         .log-list table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .log-list td { padding: 8px 2px; border-bottom: 1px solid #f2f2f2; text-align: center; }
         .del-btn { color: #f44336; cursor: pointer; font-weight: bold; font-size: 0.75rem; text-decoration: underline; }
+
+        /* 會計回顧專用樣式 */
+        .summary-view-box { background: white; padding: 20px; border-radius: 20px; border: 2px solid var(--p); box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: 15px; }
+        .summary-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; color: #2c3e50; border-left: 5px solid var(--p); padding-left: 8px; }
     </style>
 </head>
 <body class="month-6">
@@ -87,44 +91,65 @@
 </div>
 
 <div class="month-tabs">
-    <div class="month-tab active" onclick="switchMonth(6)">6月</div>
-    <div class="month-tab" onclick="switchMonth(7)">7月</div>
-    <div class="month-tab" onclick="switchMonth(8)">8月</div>
-    <div class="month-tab" onclick="switchMonth(9)">9月</div>
-    <div class="month-tab" onclick="switchMonth(10)">10月</div>
-    <div class="month-tab" onclick="switchMonth(11)">11月</div>
-    <div class="month-tab" onclick="switchMonth(12)">12月</div>
+    <div class="month-tab active" data-m="6" onclick="switchMonth(6)">6月</div>
+    <div class="month-tab" data-m="7" onclick="switchMonth(7)">7月</div>
+    <div class="month-tab" data-m="8" onclick="switchMonth(8)">8月</div>
+    <div class="month-tab" data-m="9" onclick="switchMonth(9)">9月</div>
+    <div class="month-tab" data-m="10" onclick="switchMonth(10)">10月</div>
+    <div class="month-tab" data-m="11" onclick="switchMonth(11)">11月</div>
+    <div class="month-tab" data-m="12" onclick="switchMonth(12)">12月</div>
+    <div class="month-tab" data-m="summary" onclick="switchMonth('summary')">📊 會計統整</div>
 </div>
 
-<div class="add-field-box">
-    <span>➕ 靈活加場：</span>
-    <input type="text" id="newDinoName" placeholder="輸入新地點/場次名稱">
-    <select id="newDinoIcon">
-        <option value="Flamingo">🦩 紅鶴</option>
-        <option value="Rex">🦖 暴龍</option>
-        <option value="Whale">🐳 藍鯨</option>
-        <option value="Owl">🦉 貓頭鷹</option>
-        <option value="Fish">🐠 熱帶魚</option>
-        <option value="Dino">🦕 腕龍</option>
-        <option value="Cow">🐄 乳牛</option>
-        <option value="Lobster">🦞 龍蝦</option>
-        <option value="Rooster">🐓 公雞</option>
-    </select>
-    <button onclick="addNewCard()">立刻加場</button>
+<div id="mainAccountingArea">
+    <div class="add-field-box">
+        <span>➕ 靈活加場：</span>
+        <input type="text" id="newDinoName" placeholder="輸入新地點/場次名稱">
+        <select id="newDinoIcon">
+            <option value="Flamingo">🦩 紅鶴</option>
+            <option value="Rex">🦖 暴龍</option>
+            <option value="Whale">🐳 藍鯨</option>
+            <option value="Owl">🦉 貓頭鷹</option>
+            <option value="Fish">🐠 熱帶魚</option>
+            <option value="Dino">🦕 腕龍</option>
+            <option value="Cow">🐄 乳牛</option>
+            <option value="Lobster">🦞 龍蝦</option>
+            <option value="Rooster">🐓 公雞</option>
+        </select>
+        <button onclick="addNewCard()">立刻加場</button>
+    </div>
+
+    <table class="perf-table">
+        <thead><tr><th>收成/動物</th><th>總食量</th><th>飽食度</th><th>達成</th></tr></thead>
+        <tbody id="performanceBody"></tbody>
+    </table>
+
+    <div class="summary-box">
+        <div><span>🥩 總食量</span><b id="gRev" style="color: var(--accent);">$0</b></div>
+        <div><span>💸 總支出</span><b id="gExp" style="color: #78909c;">$0</b></div>
+        <div><span>💖 總飽食度</span><b id="gProfit" style="color: var(--p);">$0</b></div>
+    </div>
+
+    <div id="dinoContainer" class="dino-grid"></div>
 </div>
 
-<table class="perf-table">
-    <thead><tr><th>收成/動物</th><th>總食量</th><th>飽食度</th><th>達成</th></tr></thead>
-    <tbody id="performanceBody"></tbody>
-</table>
-
-<div class="summary-box">
-    <div><span>🥩 總食量</span><b id="gRev" style="color: var(--accent);">$0</b></div>
-    <div><span>💸 總支出</span><b id="gExp" style="color: #78909c;">$0</b></div>
-    <div><span>💖 總飽食度</span><b id="gProfit" style="color: var(--p);">$0</b></div>
+<div id="summaryReportArea" style="display: none;">
+    <div class="summary-view-box">
+        <div class="summary-title">下半年會計財務回顧檢討</div>
+        <table class="perf-table" style="border-color: #607d8b;">
+            <thead>
+                <tr style="background-color: #eceff1;">
+                    <th>月份</th>
+                    <th>總食量 (營業額)</th>
+                    <th>總支出 (含稅/本/房)</th>
+                    <th>總飽食度 (純利)</th>
+                </tr>
+            </thead>
+            <tbody id="summaryReportBody">
+                </tbody>
+        </table>
+    </div>
 </div>
-
-<div id="dinoContainer" class="dino-grid"></div>
 
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzXtfxf3wd7TSzwPR0KAxJwGp7mVKzV8PGojpnhpWexo4ldchhsSixue-jEXgIz6cF0/exec"; 
@@ -132,7 +157,7 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbzXtfxf3wd7TSzwPR0KAxJw
 let currentMonth = 6;
 let selectedDate = localStorage.getItem('lastZooDate') || new Date().toISOString().split('T')[0];
 
-// 本地端預設初始卡片
+// 預設初始卡片
 let allDinos = [
     { id: 0, month: 6, icon: "Rex", name: "新竹巨城", taxRate: 33, rent: 9000, extraTax: 0, harvested: false, logs: [] },
     { id: 1, month: 6, icon: "Whale", name: "桃園新光", taxRate: 33, rent: 0, extraTax: 0, harvested: false, logs: [] },
@@ -151,22 +176,34 @@ function getDinoEmoji(iconName) {
 }
 
 function getHarvestDate(month) {
-    let targetMonth = month + 2;
+    let targetMonth = Number(month) + 2;
     if (targetMonth > 12) targetMonth -= 12; 
     return `${targetMonth}/15`;
 }
 
 function switchMonth(m) {
     currentMonth = m;
-    document.body.className = `month-${m}`;
-    const chineseMonths = {6:"六", 7:"七", 8:"八", 9:"九", 10:"十", 11:"十一", 12:"十二"};
-    document.getElementById('main-title').innerText = `${chineseMonths[m]}月森林少女的動物園`;
     
-    const tabs = document.querySelectorAll('.month-tab');
-    tabs.forEach(tab => tab.classList.remove('active'));
-    if (tabs[m - 6]) tabs[m - 6].classList.add('active');
-    
-    render();
+    // 更新 Tabs 狀態
+    document.querySelectorAll('.month-tab').forEach(tab => {
+        tab.classList.remove('active');
+        if(tab.getAttribute('data-m') == String(m)) tab.classList.add('active');
+    });
+
+    if (m === 'summary') {
+        document.body.className = `month-summary`;
+        document.getElementById('main-title').innerText = `年度會計統整與回顧`;
+        document.getElementById('mainAccountingArea').style.display = 'none';
+        document.getElementById('summaryReportArea').style.display = 'block';
+        renderSummaryReport();
+    } else {
+        document.body.className = `month-${m}`;
+        const chineseMonths = {6:"六", 7:"七", 8:"八", 9:"九", 10:"十", 11:"十一", 12:"十二"};
+        document.getElementById('main-title').innerText = `${chineseMonths[m]}月森林少女的動物園`;
+        document.getElementById('mainAccountingArea').style.display = 'block';
+        document.getElementById('summaryReportArea').style.display = 'none';
+        render();
+    }
 }
 
 function addNewCard() {
@@ -175,7 +212,6 @@ function addNewCard() {
     const cleanName = nameInput.value.trim();
     if (!cleanName) return alert("請輸入加場地點名稱！");
     
-    // 避免同月份內有名稱完全相同的卡片重複出現
     const exists = allDinos.some(d => d.month === currentMonth && d.name === cleanName);
     if(exists) return alert("這個月份已經有相同名稱的地點囉！");
 
@@ -197,10 +233,10 @@ function addNewCard() {
 async function deleteCard(id) {
     const idx = allDinos.findIndex(d => d.id === id);
     if (idx === -1) return;
-    
     if (!confirm(`確定要完全刪除「${allDinos[idx].name}」這家店的所有資料嗎？(此操作不可逆)`)) return;
     
     const targetName = allDinos[idx].name;
+    const targetMonth = allDinos[idx].month;
     allDinos.splice(idx, 1);
     render();
     
@@ -209,7 +245,7 @@ async function deleteCard(id) {
         document.getElementById('status-msg').innerText = "⌛ 正在從雲端刪除卡片...";
         await fetch(GAS_URL, {
             method: "POST",
-            body: JSON.stringify({ action: "deleteCard", name: targetName, month: currentMonth })
+            body: JSON.stringify({ action: "deleteCard", name: targetName, month: targetMonth })
         });
         cloudSaveSettings();
     } catch(e) {
@@ -239,15 +275,14 @@ async function fetchCloudData() {
         const resData = await response.json();
         
         if (resData.settings && resData.settings.length > 0) {
-            // 利用 Map 機制，防止雲端讀取時，因為重複的 ID 或者是多月份重疊造成小卡多次自我複製
             const uniqueMap = new Map();
             resData.settings.forEach(s => {
-                // 用「月份+名稱」當作全域唯一金鑰，避免任何增生 bug
-                const key = `${s.mth || 6}_${String(s.nm).trim()}`;
+                const mthVal = Number(s.mth);
+                const key = `${mthVal}_${String(s.nm).trim()}`;
                 if (!uniqueMap.has(key)) {
                     uniqueMap.set(key, {
                         id: Number(s.id), 
-                        month: Number(s.mth) || 6, 
+                        month: mthVal, 
                         extraTax: Number(s.et) || 0, 
                         rent: Number(s.rt) || 0, 
                         taxRate: Number(s.tr) || 33, 
@@ -259,23 +294,27 @@ async function fetchCloudData() {
                 }
             });
             allDinos = Array.from(uniqueMap.values());
-        } else {
-            allDinos.forEach(dino => dino.logs = []);
         }
 
         allDinos.forEach(dino => dino.logs = []);
 
-        // 綁定流水帳 logs 紀錄
+        // 修正綁定流水帳 logs 紀錄 (依據名稱及卡片月份進行核對)
         if(resData.logs && resData.logs.length > 0) {
             resData.logs.forEach(row => {
-                // 修正對比：日誌必須核對名稱，並塞入對應月份的卡片中
+                // 從日誌中猜測或對比最符合的卡片
                 const dino = allDinos.find(d => d.name.trim() === String(row.name).trim());
-                if (dino) dino.logs.push({ date: row.date, qty: row.qty, amt: row.amt });
+                if (dino) {
+                    dino.logs.push({ date: row.date, qty: row.qty, amt: row.amt });
+                }
             });
         }
         
         document.getElementById('status-msg').innerText = "✅ 數據更新成功";
-        render();
+        if(currentMonth === 'summary') {
+            renderSummaryReport();
+        } else {
+            render();
+        }
     } catch (e) {
         document.getElementById('status-msg').innerText = "⚠️ 讀取失敗，進入離線模式";
         render();
@@ -291,7 +330,7 @@ function handleDateChange(newVal) {
 function render() {
     const container = document.getElementById('dinoContainer');
     const perfBody = document.getElementById('performanceBody');
-    if(!container || !perfBody) return;
+    if(!container || !perfBody || currentMonth === 'summary') return;
     
     container.innerHTML = ''; perfBody.innerHTML = '';
     let gRev = 0, gExp = 0, perfData = [];
@@ -306,7 +345,6 @@ function render() {
         const profit = rev - tax - cost - (c.rent || 0) - (c.extraTax || 0);
         gRev += rev; gExp += (tax + cost + (c.rent || 0) + (c.extraTax || 0));
         
-        // 【變更需求 1】滿血目標改為 40,000 元
         const maxHpTarget = 40000;
         const hpPercent = Math.min(Math.max((profit / maxHpTarget) * 100, 0), 100);
         
@@ -361,6 +399,42 @@ function render() {
     document.getElementById('gProfit').innerText = '$' + (gRev - gExp).toLocaleString(undefined, {maximumFractionDigits:0});
 }
 
+// 渲染會計大總整頁面
+function renderSummaryReport() {
+    const reportBody = document.getElementById('summaryReportBody');
+    if (!reportBody) return;
+    reportBody.innerHTML = '';
+
+    // 計算 6 ~ 12 各個月份的數據
+    for (let m = 6; m <= 12; m++) {
+        const monthDinos = allDinos.filter(d => d.month === m);
+        let mRev = 0;
+        let mExp = 0;
+
+        monthDinos.forEach(c => {
+            const rev = c.logs.reduce((s, l) => s + (Number(l.amt) || 0), 0);
+            const qty = c.logs.reduce((s, l) => s + (Number(l.qty) || 0), 0);
+            const cost = qty * 55.2;
+            const tax = rev * (c.taxRate / 100);
+            
+            mRev += rev;
+            mExp += (tax + cost + (c.rent || 0) + (c.extraTax || 0));
+        });
+
+        const mProfit = mRev - mExp;
+
+        // 填入表格
+        reportBody.innerHTML += `
+            <tr>
+                <td style="font-weight:bold;">${m} 月</td>
+                <td style="color:#e65100;">$${mRev.toLocaleString()}</td>
+                <td style="color:#78909c;">$${mExp.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                <td style="color:#00897b; font-weight:bold;">$${mProfit.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+            </tr>
+        `;
+    }
+}
+
 window.update = (id, f, v) => { 
     const idx = allDinos.findIndex(d => d.id === id);
     if(idx !== -1) {
@@ -407,6 +481,7 @@ async function addAndSync(id) {
     try { await fetch(GAS_URL, { method: "POST", body: JSON.stringify(sData) }); fetchCloudData(); } catch (e) {}
 }
 
+// 首次加載
 fetchCloudData();
 </script>
 </body>
